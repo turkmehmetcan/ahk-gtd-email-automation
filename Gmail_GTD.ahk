@@ -1,26 +1,26 @@
 ; Gmail GTD - AutoHotkey v2 Script
 
 ; ========== CONFIGURATION ==========
-LABEL_ARCHIVE := "[0] GTD ARCHIVE"
+LABEL_ARCHIVE := "[0] @GTD ARCHIVE"
 LABEL_ACTION := "[1] @ACTION"
 LABEL_WAITING := "[2] @WAITING FOR"
 LABEL_REFERENCE := "[3] @REFERENCE"
 LABEL_GMAIL_INBOX := "inbox"
+LABEL_GMAIL_SPAM := "spam"
 
 DELAY_SHORT := 50     ; Short delay for key sequences
-DELAY_LONG := 150     ; Long delay for UI operations
+DELAY_LONG := 250     ; Long delay for UI operations
 
-; ========== DEFAULT GMAIL(GM) KEYBOARD SHORTCUTS ==========
-GM_LABEL := "l"             ; Open label menu
-GM_ARCHIVE := "e"           ; Archive email
-GM_MOVE := "v"              ; Move to folder/label
-GM_GO_TO_INBOX := "gi"      ; Move to inbox
-GM_MARK_UNREAD := "+u"      ; Mark as unread (Shift+U)
-GM_MARK_READ := "+i"        ; Mark as read (Shift+I)
-GM_SELECT_ALL := "^a"       ; Select all text (Ctrl+A)
-GM_DELETE := "{Delete}"     ; Delete selected text
-GM_ESCAPE := "{Escape}"     ; Close dialog/menu
-GM_ENTER := "{Enter}"       ; Confirm action
+; ========== DEFAULT GMAIL(GM) KEYBOARD SHORTCUTS (GMS_*) ==========
+GMS_LABEL := "l"            ; Open label menu
+GMS_ARCHIVE := "e"          ; Archive email
+GMS_MOVE := "v"             ; Move to folder/label
+GMS_GO_TO_INBOX := "gi"     ; Go to inbox (refresh view without page reload)
+GMS_MARK_UNREAD := "+u"     ; Mark as unread (Shift+U)
+GMS_MARK_READ := "+i"       ; Mark as read (Shift+I)
+GMS_DELETE := "+3"          ; Delete current email (Shift+3)
+GMS_ENTER := "{Enter}"      ; Apply action (Enter)
+GMS_TAB := "{Tab}"          ; Select next element (Tab)
 
 ; ========== SUPPORTED BROWSERS ==========
 BROWSERS := [
@@ -34,73 +34,92 @@ BROWSERS := [
 ; ========== HOTKEYS ==========
 #HotIf IsGmailActive()
 
-!Enter:: ProcessGTDBucket(LABEL_ARCHIVE, false) ; Archive (read)
-!a:: ProcessGTDBucket(LABEL_ACTION, true)       ; Action (unread)
-!w:: ProcessGTDBucket(LABEL_WAITING, true)      ; Waiting (unread)
-!r:: ProcessGTDBucket(LABEL_REFERENCE, true)    ; Reference (unread)
+!Enter:: ProcessGTDBucket(LABEL_ARCHIVE, false) ; Alt+Enter: GTD Archive (read)
+!a:: ProcessGTDBucket(LABEL_ACTION, true)       ; Alt+a: Action (unread)
+!w:: ProcessGTDBucket(LABEL_WAITING, true)      ; Alt+w: Waiting For (unread)
+!r:: ProcessGTDBucket(LABEL_REFERENCE, true)    ; Alt+r: Reference (unread)
 
-!e:: GmailArchive()     ; Archive email
-!z:: MoveToInbox()      ; Remove labels & move to inbox
-!u:: MarkUnread()       ; Mark as unread
-!i:: MarkRead()         ; Mark as read
+!Delete:: DeleteMail()  ; Alt+Delete: Delete email
+!End:: MarkSpam()       ; Alt+End: Mark as spam
+!i:: MarkRead()         ; Alt+i: Mark as read
+!u:: MarkUnread()       ; Alt+u: Mark as unread
+!e:: MoveToArchive()    ; Alt+e: Archive email
+!z:: MoveToInbox()      ; Alt+z: Move back to inbox
+!Space:: RefreshInbox() ; Alt+Space: Refresh inbox view
 
 #HotIf
 
 ; ========== CORE FUNCTIONS ==========
 ProcessGTDBucket(labelName, isUnread := true) {
+
     ApplyLabel(labelName)
-    Sleep(DELAY_LONG * 3)
+    Sleep(DELAY_LONG)
 
     ; Move to label folder (archive from inbox)
-    Send(GM_ARCHIVE)
-    Sleep(DELAY_LONG * 3)
-    Send(GM_GO_TO_INBOX)  ; Go to inbox view to refresh
+    MoveToArchive()
     Sleep(DELAY_LONG)
+    ; RefreshInbox()
+    ; Sleep(DELAY_LONG)
 
     if (isUnread)
         MarkUnread()
+
 }
 
 ApplyLabel(labelName) {
-    Send(GM_LABEL)
+    Send(GMS_LABEL)
     Sleep(DELAY_LONG)
     Send(labelName)
     Sleep(DELAY_LONG)
-    Send(GM_ENTER)
+    Send(GMS_ENTER)
 }
 
-GmailArchive() {
-    Send(GM_ARCHIVE)
+DeleteMail() {
+    Send(GMS_DELETE)
 }
 
 MoveToInbox() {
-    ; Clear all labels
-    ; Send(GM_LABEL)
-    ; Sleep(DELAY_LONG)
-    ; Send(GM_SELECT_ALL)
-    ; Sleep(DELAY_SHORT)
-    ; Send(GM_DELETE)
-    ; Sleep(DELAY_SHORT)
-    ; Send(GM_ESCAPE)
-    ; Sleep(DELAY_LONG)
-
-    ; MarkUnread()
-
-    ; Move to inbox and mark unread
-    Send(GM_MOVE)
+    ; Mark unread and move to inbox
+    MarkUnread()
+    Sleep(DELAY_LONG)
+    Send(GMS_MOVE)
     Sleep(DELAY_LONG)
     Send(LABEL_GMAIL_INBOX)
-    Sleep(DELAY_LONG)
-    Send(GM_ENTER)
+    Sleep(DELAY_LONG * 2)
+    Send(GMS_ENTER)
 
 }
 
-MarkUnread() {
-    Send(GM_MARK_UNREAD)
+MarkSpam() {
+    Send(GMS_MOVE)
+    Sleep(DELAY_LONG)
+    Send(LABEL_GMAIL_SPAM)
+    Sleep(DELAY_LONG * 2)
+    Send(GMS_ENTER)
+    Sleep(DELAY_LONG * 3)
+    Send(GMS_TAB)
+    Sleep(DELAY_LONG)
+    Send(GMS_ENTER)
+    Sleep(DELAY_LONG)
+    MarkRead()
+    Sleep(DELAY_LONG)
+    MoveToArchive()
 }
 
 MarkRead() {
-    Send(GM_MARK_READ)
+    Send(GMS_MARK_READ)
+}
+
+MarkUnread() {
+    Send(GMS_MARK_UNREAD)
+}
+
+MoveToArchive() {
+    Send(GMS_ARCHIVE)
+}
+
+RefreshInbox() {
+    Send(GMS_GO_TO_INBOX)
 }
 
 ; ========== BROWSER DETECTION ==========
