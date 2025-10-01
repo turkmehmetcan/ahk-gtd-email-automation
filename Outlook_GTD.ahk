@@ -25,20 +25,29 @@ COLOR_ACTION := 1   ; Red
 COLOR_WAITING := 3   ; Yellow
 COLOR_REFERENCE := 4   ; Blue
 
+; ========== OUTLOOK CONSTANTS ==========
+OL_CLASS_MAIL := 43
+OL_FOLDER_INBOX := 6
+OL_FOLDER_TASKS := 13
+OL_FOLDER_ARCHIVE := 32
+OL_ITEM_TASK := 3
+
 ; ========== HOTKEYS ==========
 #HotIf WinActive("ahk_exe OUTLOOK.EXE")
 
-!a:: ProcessGTDAction(FOLDER_ACTION, CATEGORY_ACTION, true, true)
-!w:: ProcessGTDAction(FOLDER_WAITING, CATEGORY_WAITING, true, true)
-!r:: ProcessGTDAction(FOLDER_REFERENCE, CATEGORY_REFERENCE, true, false)
-!e:: ProcessArchive()
-!z:: ProcessInbox()
-!0:: SetupGTDFolders()
+;Hotkey (Alt + key) e.g. Alt + A, Alt + 0
+;MoveToGtdBucket parameters: folderName, categoryName, markUnread (true/false), createTask (true/false)
+!a:: MoveToGtdBucket(FOLDER_ACTION, CATEGORY_ACTION, true, true)
+!w:: MoveToGtdBucket(FOLDER_WAITING, CATEGORY_WAITING, true, true)
+!r:: MoveToGtdBucket(FOLDER_REFERENCE, CATEGORY_REFERENCE, true, false)
+!e:: MoveToArchive()
+!z:: MoveToInbox()
+!0:: CreateGtdElements()
 
 #HotIf
 
 ; ========== CORE HELPERS ==========
-ProcessGTDAction(folderName, categoryName, markUnread, createTask := false) {
+MoveToGtdBucket(folderName, categoryName, markUnread, createTask := false) {
     try {
         ol := ComObjActive("Outlook.Application")
         exp := ol.ActiveExplorer
@@ -48,19 +57,19 @@ ProcessGTDAction(folderName, categoryName, markUnread, createTask := false) {
         items := []
         loop exp.Selection.Count {
             itm := exp.Selection.Item(A_Index)
-            if itm && itm.Class = 43  ; olMail
+            if itm && itm.Class = OL_CLASS_MAIL
                 items.Push(itm)
         }
 
         for itm in items {
             store := itm.Parent.Store
-            target := FindOrCreateFolder(store, folderName)
-            ApplyCategory(itm, categoryName)
+            target := findOrCreateFolder(store, folderName)
+            applyCategory(itm, categoryName)
             itm.UnRead := markUnread
             itm.Save()
             moved := itm.Move(target)
             if createTask {
-                CreateTaskInPrimary(moved, categoryName)
+                createTaskInPrimary(moved, categoryName)
             }
         }
     } catch as e {
@@ -68,7 +77,7 @@ ProcessGTDAction(folderName, categoryName, markUnread, createTask := false) {
     }
 }
 
-ProcessArchive() {
+MoveToArchive() {
     try {
         ol := ComObjActive("Outlook.Application")
         exp := ol.ActiveExplorer
@@ -77,14 +86,13 @@ ProcessArchive() {
 
         loop exp.Selection.Count {
             itm := exp.Selection.Item(A_Index)
-            if itm && itm.Class = 43 {  ; olMail
+            if itm && itm.Class = OL_CLASS_MAIL {
                 store := itm.Parent.Store
                 try {
-                    archive := store.GetDefaultFolder(32) ; olFolderArchive
+                    archive := store.GetDefaultFolder(OL_FOLDER_ARCHIVE)
                 } catch {
-                    archive := FindOrCreateFolder(store, "Archive")
+                    archive := findOrCreateFolder(store, "Archive")
                 }
-                ; Mark as read (per your Quick Step)
                 itm.UnRead := false
                 itm.Save()
                 itm.Move(archive)
@@ -95,7 +103,7 @@ ProcessArchive() {
     }
 }
 
-ProcessInbox() {
+MoveToInbox() {
     try {
         ol := ComObjActive("Outlook.Application")
         exp := ol.ActiveExplorer
@@ -104,12 +112,9 @@ ProcessInbox() {
 
         loop exp.Selection.Count {
             itm := exp.Selection.Item(A_Index)
-            if itm && itm.Class = 43 {  ; olMail
+            if itm && itm.Class = OL_CLASS_MAIL {
                 store := itm.Parent.Store
-
-                inbox := store.GetDefaultFolder(6)  ; olFolderInbox
-
-                ; Clear categories and mark unread (per your Quick Step)
+                inbox := store.GetDefaultFolder(OL_FOLDER_INBOX)
                 itm.Categories := ""
                 itm.UnRead := true
                 itm.Save()
@@ -121,7 +126,7 @@ ProcessInbox() {
     }
 }
 
-SetupGTDFolders() {
+CreateGtdElements() {
     try {
         ol := ComObjActive("Outlook.Application")
         accounts := ol.Session.Accounts
@@ -133,38 +138,106 @@ SetupGTDFolders() {
             [CATEGORY_REFERENCE, COLOR_REFERENCE]
         ]
 
-        ; Setup categories first
-        for pair in categories {
-            SetupCategory(ol, pair[1], pair[2])
-        }
+        madeChange := false
+        TrayTip("Setup", "Starting GTD setup...", 2000)
 
-        ; Setup folders for each account
+        ; Setup categories and folders for each account
+        TrayTip("Setup", "Setting up categories and folders for all accounts...", 2000)
         loop accounts.Count {
             acc := accounts.Item(A_Index)
+            TrayTip("Setup", "Account " A_Index ": " acc.DisplayName, 2000)
             store := acc.DeliveryStore
-            if !store
+            if !store {
+                TrayTip("Setup", "No DeliveryStore for account: " acc.DisplayName, 3000)
                 continue
-            FindOrCreateFolder(store, FOLDER_ACTION)
-            FindOrCreateFolder(store, FOLDER_WAITING)
-            FindOrCreateFolder(store, FOLDER_REFERENCE)
+            }
             try {
-                store.GetDefaultFolder(32)
+                root := store.GetRootFolder()
+                TrayTip("Setup", "Root for " acc.DisplayName ": " root.Name " (" root.DefaultItemType ")", 2000)
+            } catch as e {
+                TrayTip("Setup", "Failed to get root for " acc.DisplayName ": " e.Message, 3000)
+                continue
+            }
+            ; Setup categories for this account's store
+            for pair in categories {
+                try {
+                    if setupCategoryForStore(store, pair[1], pair[2]) {
+                        TrayTip("Setup", "Created or updated category: " pair[1] " in " acc.DisplayName, 2000)
+                        madeChange := true
+                    } else {
+                        TrayTip("Setup", "Category already exists: " pair[1] " in " acc.DisplayName, 1000)
+                    }
+                } catch as e {
+                    TrayTip("Setup", "Failed to setup category " pair[1] " in " acc.DisplayName ": " e.Message, 3000)
+                }
+            }
+            ; Setup folders for this account
+            if findOrCreateFolder(store, FOLDER_ACTION, true) {
+                TrayTip("Setup", "Created folder: " FOLDER_ACTION " in " acc.DisplayName, 2000)
+                madeChange := true
+            }
+            if findOrCreateFolder(store, FOLDER_WAITING, true) {
+                TrayTip("Setup", "Created folder: " FOLDER_WAITING " in " acc.DisplayName, 2000)
+                madeChange := true
+            }
+            if findOrCreateFolder(store, FOLDER_REFERENCE, true) {
+                TrayTip("Setup", "Created folder: " FOLDER_REFERENCE " in " acc.DisplayName, 2000)
+                madeChange := true
+            }
+            try {
+                store.GetDefaultFolder(OL_FOLDER_ARCHIVE)
             } catch {
-                FindOrCreateFolder(store, "Archive")
+                if findOrCreateFolder(store, "Archive", true) {
+                    TrayTip("Setup", "Created folder: Archive in " acc.DisplayName, 2000)
+                    madeChange := true
+                }
+            }
+        }
+        ; Create category in a specific store/account
+        setupCategoryForStore(store, categoryName, colorIndex) {
+            try {
+                categories := store.Application.Session.Categories
+                ; Check if category exists
+                existingCat := 0
+                loop categories.Count {
+                    cat := categories.Item(A_Index)
+                    if StrLower(cat.Name) == StrLower(categoryName) {
+                        existingCat := cat
+                        break
+                    }
+                }
+                ; Create or update category
+                if existingCat {
+                    if existingCat.Color != colorIndex {
+                        existingCat.Color := colorIndex
+                        return true ; color updated
+                    }
+                    return false ; already exists, no change
+                } else {
+                    categories.Add(categoryName, colorIndex)
+                    return true ; new category created
+                }
+            } catch as e {
+                TrayTip("Failed to setup category '" categoryName "' in store: " e.Message, "Outlook", 3000)
+                return false
             }
         }
 
-        MsgBox("GTD setup completed successfully!", "Setup", 0x40)
+        if madeChange {
+            MsgBox("GTD setup completed or updated folders/categories!", "Setup", 0x40)
+        } else {
+            MsgBox("GTD setup: Everything already exists, no changes made.", "Setup", 0x40)
+        }
 
     } catch as e {
         TrayTip("Setup failed: " e.Message, "Outlook", 3000)
     }
 }
 
-CreateTaskInPrimary(mailItem, category := "") {
+createTaskInPrimary(mailItem, category := "") {
     global PRIMARY_SMTP, OPEN_TASK
     try {
-        if !mailItem || mailItem.Class != 43
+        if !mailItem || mailItem.Class != OL_CLASS_MAIL
             return
 
         ol := ComObjActive("Outlook.Application")
@@ -173,8 +246,8 @@ CreateTaskInPrimary(mailItem, category := "") {
         loop accounts.Count {
             acc := accounts.Item(A_Index)
             if StrLower(acc.SmtpAddress) == StrLower(PRIMARY_SMTP) {
-                tFolder := acc.DeliveryStore.GetDefaultFolder(13)  ; olFolderTasks
-                task := tFolder.Items.Add(3)  ; olTaskItem
+                tFolder := acc.DeliveryStore.GetDefaultFolder(OL_FOLDER_TASKS)
+                task := tFolder.Items.Add(OL_ITEM_TASK)
                 task.Subject := mailItem.Subject
                 if category
                     task.Categories := category
@@ -194,7 +267,7 @@ CreateTaskInPrimary(mailItem, category := "") {
     }
 }
 
-ApplyCategory(mailItem, category) {
+applyCategory(mailItem, category) {
     try {
         cats := Trim(mailItem.Categories)
         if !cats {
@@ -213,25 +286,26 @@ ApplyCategory(mailItem, category) {
     }
 }
 
-FindOrCreateFolder(store, name) {
-    ; First try to find existing folder
-    folder := FindExistingFolder(store, name)
-    if folder
-        return folder
-
-    ; Create folder at root level if not found
+findOrCreateFolder(store, name, reportChange := false) {
+    folder := findExistingFolder(store, name)
+    if folder {
+        if reportChange
+            TrayTip("Setup", "Folder exists: " name, 1000)
+        return reportChange ? false : folder
+    }
     try {
         root := store.GetRootFolder()
+        TrayTip("Setup", "Attempting to create folder '" name "' under root: " root.Name, 2000)
         newFolder := root.Folders.Add(name)
-        return newFolder
+        TrayTip("Setup", "Created folder: " name, 2000)
+        return reportChange ? true : newFolder
     } catch as e {
-        TrayTip("Failed to create folder '" name "': " e.Message, "Outlook", 3000)
-        return 0
+        TrayTip("Failed to create folder '" name "' under root: " root.Name ". Error: " e.Message, "Outlook", 3000)
+        return reportChange ? false : 0
     }
 }
 
-FindExistingFolder(store, name) {
-    ; Search top-level folders first
+findExistingFolder(store, name) {
     try {
         root := store.GetRootFolder()
         loop root.Folders.Count {
@@ -239,20 +313,20 @@ FindExistingFolder(store, name) {
             if StrLower(f.Name) == StrLower(name)
                 return f
         }
-        ; Recursive search if not found at top level
-        return FindFolderRecursive(root, name)
+        ; Skip recursive search to avoid performance issues
+        return 0
     } catch {
         return 0
     }
 }
 
-FindFolderRecursive(folder, name) {
+findFolderRecursive(folder, name) {
     try {
         if StrLower(folder.Name) == StrLower(name)
             return folder
         loop folder.Folders.Count {
             sub := folder.Folders.Item(A_Index)
-            result := FindFolderRecursive(sub, name)
+            result := findFolderRecursive(sub, name)
             if result
                 return result
         }
@@ -262,9 +336,12 @@ FindFolderRecursive(folder, name) {
     return 0
 }
 
-SetupCategory(ol, categoryName, colorIndex) {
+setupCategory(ol, categoryName, colorIndex) {
     try {
+        TrayTip("Debug", "Accessing categories for: " categoryName, 1500)
         categories := ol.Session.Categories
+
+        TrayTip("Debug", "Categories count: " categories.Count, 1000)
 
         ; Check if category exists
         existingCat := 0
@@ -278,15 +355,21 @@ SetupCategory(ol, categoryName, colorIndex) {
 
         ; Create or update category
         if existingCat {
-            ; Update color if different
             if existingCat.Color != colorIndex {
                 existingCat.Color := colorIndex
+                TrayTip("Setup", "Updated category color: " categoryName, 2000)
+                return true ; color updated
             }
+            TrayTip("Setup", "Category exists: " categoryName, 1000)
+            return false ; already exists, no change
         } else {
-            ; Create new category
+            TrayTip("Debug", "Creating new category: " categoryName " with color: " colorIndex, 2000)
             categories.Add(categoryName, colorIndex)
+            TrayTip("Setup", "Created category: " categoryName, 2000)
+            return true ; new category created
         }
     } catch as e {
         TrayTip("Failed to setup category '" categoryName "': " e.Message, "Outlook", 3000)
+        return false
     }
 }
