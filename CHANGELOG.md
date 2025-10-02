@@ -42,11 +42,11 @@ All notable changes to this project will be documented in this file.
 
 - Alt+E: Archive emails
 
-- Alt+A: Move to @Action folder
+- Alt+A: Move to `@Action` folder
 
-- Alt+W: Move to @Waiting For folder
+- Alt+W: Move to `@Waiting For` folder
 
-- Alt+R: Move to @Reference folder
+- Alt+R: Move to `@Reference` folder
 
 - Alt+Z: Move back to Inbox
 
@@ -96,7 +96,7 @@ All notable changes to this project will be documented in this file.
 
 - Enhanced Alt+A and Alt+W to move emails, mark unread, apply categories, and create tasks
 
-- Alt+R now moves to @Reference folder without task creation
+- Alt+R now moves to `@Reference` folder without task creation
 
 - Alt+E archives emails and marks as read
 
@@ -119,11 +119,11 @@ All notable changes to this project will be documented in this file.
 
   - Alt+Enter: Archive email (mark as read)
 
-  - Alt+A: Move to @Action (mark as unread)
+  - Alt+A: Move to `@Action` (mark as unread)
 
-  - Alt+W: Move to @Waiting For (mark as unread)
+  - Alt+W: Move to `@Waiting For` (mark as unread)
 
-  - Alt+R: Move to @Reference (mark as unread)
+  - Alt+R: Move to `@Reference` (mark as unread)
 
   - Alt+E: Quick archive
 
@@ -273,6 +273,5 @@ This is the first public release featuring:
 - All core functions now use helper functions for consistency and maintainability
 
 - Grouped constants by category (Actions, Status, Navigation, UI Elements)
-
 
 
