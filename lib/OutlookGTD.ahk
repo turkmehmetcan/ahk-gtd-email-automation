@@ -1,8 +1,16 @@
-﻿; Outlook GTD - AutoHotkey v2 Script
-; Hotkeys: Alt+A(Action) Alt+W(Waiting) Alt+R(Reference) Alt+E(Archive) Alt+Z(Inbox) Alt+0(Setup)
-; All folder/category names and colors are defined at the top for easy configuration.
+#Requires AutoHotkey v2.0
+
+/*
+================================================================================
+Outlook GTD Module
+================================================================================
+Library module for Outlook GTD automation.
+Provides GTD workflow functions for Outlook using COM API.
+================================================================================
+*/
 
 ; ========== CONFIGURATION ==========
+
 ; Load email from config file
 CONFIG_FILE := A_ScriptDir "\config.ini"
 PRIMARY_SMTP := IniRead(CONFIG_FILE, "Settings", "PrimaryEmail", "")
@@ -22,8 +30,8 @@ CATEGORY_WAITING := "@Waiting For"
 CATEGORY_REFERENCE := "@Reference"
 
 COLOR_ACTION := 1   ; Red
-COLOR_WAITING := 3   ; Yellow
-COLOR_REFERENCE := 4   ; Blue
+COLOR_WAITING := 4   ; Yellow
+COLOR_REFERENCE := 8   ; Blue
 
 ; ========== OUTLOOK CONSTANTS ==========
 OL_CLASS_MAIL := 43
@@ -32,22 +40,15 @@ OL_FOLDER_TASKS := 13
 OL_FOLDER_ARCHIVE := 32
 OL_ITEM_TASK := 3
 
-; ========== HOTKEYS ==========
-#HotIf WinActive("ahk_exe OUTLOOK.EXE")
+; ========== DETECTION ==========
 
-;Hotkey (Alt + key) e.g. Alt + A, Alt + 0
-;MoveToGtdBucket parameters: folderName, categoryName, markUnread (true/false), createTask (true/false)
-!a:: MoveToGtdBucket(FOLDER_ACTION, CATEGORY_ACTION, true, true)
-!w:: MoveToGtdBucket(FOLDER_WAITING, CATEGORY_WAITING, true, true)
-!r:: MoveToGtdBucket(FOLDER_REFERENCE, CATEGORY_REFERENCE, true, false)
-!e:: MoveToArchive()
-!z:: MoveToInbox()
-!0:: CreateGtdElements()
-
-#HotIf
+IsOutlookActive() {
+    return WinActive("ahk_exe OUTLOOK.EXE")
+}
 
 ; ========== CORE HELPERS ==========
-MoveToGtdBucket(folderName, categoryName, markUnread, createTask := false) {
+
+OutlookMoveToGtdBucket(folderName, categoryName, markUnread, createTask := false) {
     try {
         ol := ComObjActive("Outlook.Application")
         exp := ol.ActiveExplorer
@@ -77,7 +78,7 @@ MoveToGtdBucket(folderName, categoryName, markUnread, createTask := false) {
     }
 }
 
-MoveToArchive() {
+OutlookMoveToArchive() {
     try {
         ol := ComObjActive("Outlook.Application")
         exp := ol.ActiveExplorer
@@ -103,7 +104,7 @@ MoveToArchive() {
     }
 }
 
-MoveToInbox() {
+OutlookMoveToInbox() {
     try {
         ol := ComObjActive("Outlook.Application")
         exp := ol.ActiveExplorer
@@ -126,7 +127,7 @@ MoveToInbox() {
     }
 }
 
-CreateGtdElements() {
+OutlookCreateGtdElements() {
     try {
         ol := ComObjActive("Outlook.Application")
         accounts := ol.Session.Accounts

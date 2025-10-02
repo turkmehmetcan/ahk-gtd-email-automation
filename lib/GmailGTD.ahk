@@ -1,45 +1,11 @@
 #Requires AutoHotkey v2.0
-#SingleInstance Force
-SendMode("Input")
 
 /*
 ================================================================================
-Gmail GTD Automation Script
+Gmail GTD Module
 ================================================================================
-
-Description:
-Automates Getting Things Done (GTD) workflow for Gmail using keyboard shortcuts.
-Provides quick email processing with Alt+key combinations to categorize,
-archive, and manage emails efficiently across multiple browsers.
-
-Features:
-- GTD bucket categorization (Archive, Action, Waiting, Reference)
-- Quick archive, delete, and spam management
-- Cross-browser compatibility (Chrome, Firefox, Edge, etc.)
-- Configurable delays for reliable automation across different systems
-- Modular functions for easy customization and extension
-
-Usage:
-Alt+Enter - Move to GTD Archive as read
-Alt+A     - Move to GTD Action as unread
-Alt+W     - Move to GTD Waiting For as unread
-Alt+R     - Move to GTD Reference as unread
-Alt+E     - Archive email
-Alt+Delete- Delete email
-Alt+End   - Mark as spam
-Alt+I     - Mark as read
-Alt+U     - Mark as unread
-Alt+Z     - Move back to inbox
-Alt+Space - Refresh inbox without reloading page
-
-Requirements:
-- AutoHotkey v2.0+
-- Gmail keyboard shortcuts enabled
-- Supported browser with Gmail open
-
-Author: Mehmet Can Türk
-Version: 1.2
-License: MIT
+Library module for Gmail GTD automation.
+Provides GTD workflow functions for Gmail in any browser.
 ================================================================================
 */
 
@@ -103,31 +69,6 @@ IsGmailActive() {
     return false
 }
 
-; ========== HOTKEYS ==========
-
-#HotIf IsGmailActive()
-
-; GTD Workflow Hotkeys
-!Enter:: MoveToGtdBucket(LABEL_GTD_ARCHIVE, false) ; Alt+Enter: Move to GTD Archive as read
-!a:: MoveToGtdBucket(LABEL_GTD_ACTION, true)       ; Alt+a: Move to GTD Action as unread
-!w:: MoveToGtdBucket(LABEL_GTD_WAITING, true)      ; Alt+w: Move to GTD Waiting For as unread
-!r:: MoveToGtdBucket(LABEL_GTD_REFERENCE, true)    ; Alt+r: Move to GTD Reference as unread
-
-; Email Management
-!e:: MoveToArchive()     ; Alt+E: Archive email
-!Delete:: DeleteMail()   ; Alt+Delete: Delete email
-!End:: MarkSpam()        ; Alt+End: Mark as spam
-!z:: MoveToInbox()       ; Alt+Z: Move back to inbox
-
-; Email Status
-!i:: MarkRead()          ; Alt+I: Mark as read
-!u:: MarkUnread()        ; Alt+U: Mark as unread
-
-; Navigation
-!Space:: RefreshInbox()  ; Alt+Space: Refresh inbox without reloading page
-
-#HotIf
-
 ; ========== SUPPORT FUNCTIONS ==========
 
 ; Waits for specified duration in milliseconds
@@ -160,9 +101,6 @@ MoveToGtdBucket(labelName, markAsUnread := true) {
     SendShortcut(KEY_GMAIL_LABEL, DELAY_MEDIUM)
     SendText(labelName, DELAY_LONG)
     PressEnter(DELAY_MEDIUM)
-    ; SendShortcut(KEY_GMAIL_MOVE, DELAY_MEDIUM)
-    ; SendText(labelName, DELAY_LONG)
-    ; PressEnter(DELAY_MEDIUM)
     MoveToArchive()
     if (markAsUnread)
         MarkUnread()
@@ -195,7 +133,6 @@ MoveToInbox() {
     SendText(LABEL_GMAIL_INBOX, DELAY_LONG)
     PressEnter(DELAY_LONG)
     MarkUnread()
-    ; SendShortcut(KEY_GMAIL_NEWER_CONVERSATION, DELAY_SHORT)
 }
 
 ; Marks current email as read
