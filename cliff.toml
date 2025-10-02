@@ -9,10 +9,10 @@ body = """
 {% for group, commits in commits | group_by(attribute="group") %}
     ## {{ group | upper_first }}
     {% for commit in commits %}
-        - {{ commit.message | split(pat="\n") | first | trim }}
+        - {{ commit.message | split(pat="\n") | first | trim | replace(from="@Action", to="`@Action`") | replace(from="@Waiting For", to="`@Waiting For`") | replace(from="@Reference", to="`@Reference`") }}
         {% if commit.body %}
             {% for line in commit.body | split(pat="\n") %}
-          {{ line }}
+          {{ line | replace(from="@Action", to="`@Action`") | replace(from="@Waiting For", to="`@Waiting For`") | replace(from="@Reference", to="`@Reference`") }}
             {% endfor %}
         {% endif %}
     {% endfor %}

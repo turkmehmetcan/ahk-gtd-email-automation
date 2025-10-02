@@ -5,6 +5,65 @@ All notable changes to this project will be documented in this file.
 
 ## Documentation
 
+- Fix formatting in CHANGELOG
+
+
+- Sync CHANGELOG from development branch
+
+
+
+## Features
+
+- Implement modular library architecture with unified entry point
+
+
+- Create GTD_Automation.ahk as main script for both Gmail and Outlook
+
+- Refactor Gmail automation into lib/GmailGTD.ahk module
+
+- Refactor Outlook automation into lib/OutlookGTD.ahk module
+
+- Add automatic platform detection (IsGmailActive/IsOutlookActive)
+
+- Implement consistent Alt+key hotkeys across both platforms
+
+- Prefix Outlook functions to avoid naming conflicts with Gmail
+
+- Enable single script to handle both platforms seamlessly based on active window
+
+- Improve code maintainability and reusability through modular architecture
+
+- Update README with v2.0 features and modular architecture documentation
+
+- Document new unified workflow and project structure
+
+- Make extension with additional email platforms easier
+
+
+
+
+## Miscellaneous
+
+- Merge development into main for v2.0.0 release
+
+
+This is a major release featuring modular architecture:
+
+- Unified entry point for both Gmail and Outlook
+
+- Automatic platform detection
+
+- Modular library structure (lib/GmailGTD.ahk, lib/OutlookGTD.ahk)
+
+- Consistent hotkey experience across platforms
+
+- Improved code maintainability and extensibility
+
+
+
+
+## Documentation
+
 - Create comprehensive README for v1.0.0 release
 
 
@@ -199,6 +258,7 @@ This is the first public release featuring:
 
 - Git-cliff configuration for automated changelog generation
 
+- Add CHANGELOG for v1.0.0 release
 
 
 
