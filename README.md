@@ -7,19 +7,26 @@ Automate your GTD (Getting Things Done) email workflow for **Outlook** and **Gma
 
 ## Features
 
-### Outlook GTD Automation (`Outlook_GTD.ahk`)
-- **Alt+A**: Move email to @ACTION folder + create task
-- **Alt+W**: Move email to @WAITING FOR folder + create task
-- **Alt+R**: Move email to @REFERENCE folder
+### Unified GTD Automation (`GTD_Automation.ahk`)
+**New in v2.0:** Single entry point for both platforms with automatic detection
+- **One script** for both Outlook and Gmail
+- **Automatic platform detection** - hotkeys work based on active window
+- **Modular architecture** - clean separation of platform logic
+- **Consistent shortcuts** - same Alt+key combinations across platforms
+
+### Outlook GTD Features (via `lib/OutlookGTD.ahk`)
+- **Alt+A**: Move email to `@ACTION` folder + create task
+- **Alt+W**: Move email to `@WAITING FOR` folder + create task
+- **Alt+R**: Move email to `@REFERENCE` folder
 - **Alt+E**: Archive email (mark as read)
 - **Alt+Z**: Move email back to Inbox (mark as unread)
 - **Alt+0**: Create GTD folders, categories, and colors in all accounts
 
-### Gmail GTD Automation (`Gmail_GTD.ahk`)
-- **Alt+Enter**: Move email to [0] @GTD ARCHIVE (mark as read)
-- **Alt+A**: Move email to [1] @ACTION label (mark as unread)
-- **Alt+W**: Move email to [2] @WAITING FOR label (mark as unread)
-- **Alt+R**: Move email to [3] @REFERENCE label (mark as unread)
+### Gmail GTD Features (via `lib/GmailGTD.ahk`)
+- **Alt+Enter**: Move email to `[0] @GTD ARCHIVE` (mark as read)
+- **Alt+A**: Move email to `[1] @ACTION` label (mark as unread)
+- **Alt+W**: Move email to `[2] @WAITING FOR` label (mark as unread)
+- **Alt+R**: Move email to `[3] @REFERENCE` label (mark as unread)
 - **Alt+E**: Archive email
 - **Alt+Z**: Move email back to Inbox
 - **Alt+Delete**: Delete email
@@ -62,24 +69,21 @@ Works with 25+ browsers including Chrome, Edge, Firefox, Brave, Opera, and more.
 
 ## Usage
 
-### Running the Scripts
+### Running the Script
 
-**Outlook:**
+Simply run `GTD_Automation.ahk` - it automatically works with both Outlook and Gmail:
+
 ```bash
 # Double-click or run from command line
-Outlook_GTD.ahk
+GTD_Automation.ahk
 ```
 
-**Gmail:**
-```bash
-# Double-click or run from command line
-Gmail_GTD.ahk
-```
+The script detects which application is active and applies the appropriate hotkeys automatically.
 
 ### First-Time Setup
 
 **Outlook Users:**
-1. Run `Outlook_GTD.ahk`
+1. Run `GTD_Automation.ahk`
 2. Open Outlook
 3. Press **Alt+0** to automatically create:
    - GTD folders (@ACTION, @WAITING FOR, @REFERENCE, Archive)
@@ -87,7 +91,7 @@ Gmail_GTD.ahk
    - Works across all your Outlook accounts
 
 **Gmail Users:**
-1. Run `Gmail_GTD.ahk`
+1. Run `GTD_Automation.ahk`
 2. Open Gmail in your browser
 3. Manually create labels (the script will apply them automatically):
    - `[0] @GTD ARCHIVE`
@@ -126,16 +130,16 @@ PrimaryEmail=your.email@domain.com
 
 ### Customizing GTD Labels/Folders
 
-Edit the script constants at the top of each file:
+Edit the constants in the library modules:
 
-**Outlook_GTD.ahk:**
+**For Outlook** (`lib/OutlookGTD.ahk`):
 ```ahk
 FOLDER_ACTION := "@ACTION"
 FOLDER_WAITING := "@WAITING FOR"
 FOLDER_REFERENCE := "@REFERENCE"
 ```
 
-**Gmail_GTD.ahk:**
+**For Gmail** (`lib/GmailGTD.ahk`):
 ```ahk
 LABEL_GTD_ACTION := "[1] @ACTION"
 LABEL_GTD_WAITING := "[2] @WAITING FOR"
@@ -144,12 +148,26 @@ LABEL_GTD_REFERENCE := "[3] @REFERENCE"
 
 ### Customizing Hotkeys
 
-Find the hotkey definitions at the bottom of each script and modify as needed:
+Edit the hotkey definitions in `GTD_Automation.ahk`:
 
 ```ahk
-#HotIf WinActive("ahk_exe OUTLOOK.EXE")
-!a::OutlookMoveToGtdBucket(FOLDER_ACTION, CATEGORY_ACTION, true, true)
+#HotIf IsOutlookActive()
+!a:: OutlookMoveToGtdBucket(FOLDER_ACTION, CATEGORY_ACTION, true, true)
 #HotIf
+```
+
+## Project Structure
+
+```
+ahk-gtd-email-automation/
+├── GTD_Automation.ahk      # Main entry point (run this)
+├── lib/
+│   ├── GmailGTD.ahk        # Gmail automation module
+│   └── OutlookGTD.ahk      # Outlook automation module
+├── config.ini              # Your Outlook email configuration
+├── config.example.ini      # Configuration template
+├── CHANGELOG.md            # Version history
+└── README.md               # This file
 ```
 
 ## Contributing
