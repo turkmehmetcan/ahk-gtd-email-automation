@@ -1,2 +1,5 @@
 # User-specific configuration (contains personal email)
 config.ini
+
+# Temporary files
+tmp/
