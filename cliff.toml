@@ -4,19 +4,30 @@ header = """
 
 All notable changes to this project will be documented in this file.
 
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
 """
 body = """
-{% for group, commits in commits | group_by(attribute="group") %}
-    ## {{ group | upper_first }}
-    {% for commit in commits %}
-        - {{ commit.message | split(pat="\n") | first | trim | replace(from="@Action", to="`@Action`") | replace(from="@Waiting For", to="`@Waiting For`") | replace(from="@Reference", to="`@Reference`") }}
-        {% if commit.body %}
-            {% for line in commit.body | split(pat="\n") %}
-          {{ line | replace(from="@Action", to="`@Action`") | replace(from="@Waiting For", to="`@Waiting For`") | replace(from="@Reference", to="`@Reference`") }}
-            {% endfor %}
-        {% endif %}
-    {% endfor %}
-{% endfor %}
+{% if version -%}
+## [{{ version | trim_start_matches(pat="v") }}] - {{ timestamp | date(format="%Y-%m-%d") }}
+{% else -%}
+## [Unreleased]
+{% endif -%}
+{% for group, commits in commits | group_by(attribute="group") -%}
+
+### {{ group | upper_first }}
+{% for commit in commits -%}
+- **{{ commit.message | split(pat="\n") | first | trim | replace(from="@Action", to="`@Action`") | replace(from="@Waiting", to="`@Waiting`") | replace(from="@Reference", to="`@Reference`") }}**
+{% if commit.body -%}
+{% for line in commit.body | split(pat="\n") -%}
+{% if line | trim %}  {{ line | trim | replace(from="@Action", to="`@Action`") | replace(from="@Waiting", to="`@Waiting`") | replace(from="@Reference", to="`@Reference`") }}
+{% endif -%}
+{% endfor -%}
+{% endif -%}
+{% endfor -%}
+{% endfor -%}
+
 """
 trim = true
 
@@ -24,13 +35,21 @@ trim = true
 conventional_commits = true
 filter_unconventional = false
 commit_parsers = [
-    { message = "^feat", group = "Features" },
-    { message = "^fix", group = "Bug Fixes" },
-    { message = "^docs", group = "Documentation" },
-    { message = "^perf", group = "Performance" },
-    { message = "^refactor", group = "Refactoring" },
-    { message = "^style", group = "Style" },
-    { message = "^test", group = "Testing" },
-    { message = "^chore", group = "Miscellaneous" },
-    { message = "^build", group = "Build System" },
+    { message = "^feat", group = "Added" },
+    { message = "^fix", group = "Fixed" },
+    { message = "^perf", group = "Changed" },
+    { message = "^refactor", group = "Changed" },
+    { message = "^docs", group = "Changed" },
+    { message = "^style", group = "Changed" },
+    { message = "^test", group = "Changed" },
+    { message = "^chore", group = "Changed" },
+    { message = "^build", group = "Changed" },
+    { message = "^revert", group = "Changed" },
+    { message = ".*deprecated", body = ".*deprecated", group = "Deprecated" },
+    { message = ".*removed", body = ".*removed", group = "Removed" },
+    { message = ".*security", body = ".*security", group = "Security" },
 ]
+
+[bump]
+features_always_bump_minor = true
+breaking_always_bump_major = true
