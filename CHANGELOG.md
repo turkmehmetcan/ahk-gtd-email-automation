@@ -51,9 +51,9 @@ Automate your GTD email workflow with keyboard shortcuts for both Outlook and Gm
 ### Core Features
 
 **Keyboard shortcuts for GTD workflow:**
-- `Alt+A` - Move to @Action (creates Outlook task automatically)
-- `Alt+W` - Move to @Waiting For (creates Outlook task automatically)
-- `Alt+R` - Move to @Reference
+- `Alt+A` - Move to `@Action` (creates Outlook task automatically)
+- `Alt+W` - Move to `@Waiting For` (creates Outlook task automatically)
+- `Alt+R` - Move to `@Reference`
 - `Alt+E` - Archive email
 - `Alt+Z` - Return to Inbox
 
