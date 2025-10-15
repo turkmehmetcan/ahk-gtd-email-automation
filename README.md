@@ -117,6 +117,27 @@ The script detects which application is active and applies the appropriate hotke
 | **Alt+Space** | *(not applicable)* | Refresh Inbox |
 
 ## Configuration
+### Automatic Startup (Windows)
+
+You can configure the script to run automatically when Windows starts:
+
+**How to enable/disable:**
+1. Open your `config.ini` file.
+2. Add or edit the following lines:
+    ```ini
+    [Settings]
+    ; RunAtStartup: Set to On to run script at Windows startup, Off to disable
+    RunAtStartup=On
+    ```
+    - Use `On` to enable automatic startup.
+    - Use `Off` to disable automatic startup.
+
+**What happens:**
+- When enabled, a shortcut to `GTD_Automation.ahk` is created in your Startup folder:
+   `C:\Users\<YourUser>\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup`
+- When disabled, the shortcut is removed automatically.
+
+No manual shortcut management is needed—just set the value and run the script.
 
 ### Outlook Configuration
 

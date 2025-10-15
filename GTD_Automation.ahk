@@ -51,6 +51,23 @@ License: MIT
 #Include lib\GmailGTD.ahk
 #Include lib\OutlookGTD.ahk
 
+; ========== STARTUP SHORTCUT LOGIC ==========
+CONFIG_FILE := A_ScriptDir "\config.ini"
+RUN_AT_STARTUP := IniRead(CONFIG_FILE, "Settings", "RunAtStartup", "Off")
+STARTUP_FOLDER := A_AppData "\Microsoft\Windows\Start Menu\Programs\Startup"
+SCRIPT_PATH := A_ScriptFullPath
+SHORTCUT_PATH := STARTUP_FOLDER "\GTD_Automation.lnk"
+
+if (RUN_AT_STARTUP = "On") {
+    if !FileExist(SHORTCUT_PATH) {
+        try FileCreateShortcut(SCRIPT_PATH, SHORTCUT_PATH)
+    }
+} else {
+    if FileExist(SHORTCUT_PATH) {
+        try FileDelete(SHORTCUT_PATH)
+    }
+}
+
 ; ========== GMAIL HOTKEYS ==========
 #HotIf IsGmailActive()
 
