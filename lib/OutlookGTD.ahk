@@ -15,7 +15,7 @@ Provides GTD workflow functions for Outlook using COM API.
 CONFIG_FILE := A_ScriptDir "\config.ini"
 PRIMARY_SMTP := IniRead(CONFIG_FILE, "Settings", "PrimaryEmail", "")
 if (PRIMARY_SMTP = "") {
-    MsgBox "Please create config.ini with your email address.`n`nExample:`n[Settings]`nPrimaryEmail=your.email@domain.com"
+    MsgBox "Please create config.ini with your email setting.`n`nExample:`n[Settings]`nPrimaryEmail=your.email@domain.com`n`nOr set PrimaryEmail=Off to create tasks in each email's own account."
     ExitApp
 }
 
@@ -70,7 +70,7 @@ OutlookMoveToGtdBucket(folderName, categoryName, markUnread, createTask := false
             itm.Save()
             moved := itm.Move(target)
             if createTask {
-                createTaskInPrimary(moved, categoryName)
+                createTaskFromEmail(moved, categoryName)
             }
         }
     } catch as e {
@@ -235,37 +235,58 @@ OutlookCreateGtdElements() {
     }
 }
 
-createTaskInPrimary(mailItem, category := "") {
+createTaskFromEmail(mailItem, category := "") {
     global PRIMARY_SMTP, OPEN_TASK
     try {
         if !mailItem || mailItem.Class != OL_CLASS_MAIL
             return
 
         ol := ComObjActive("Outlook.Application")
-        accounts := ol.Session.Accounts
 
-        loop accounts.Count {
-            acc := accounts.Item(A_Index)
-            if StrLower(acc.SmtpAddress) == StrLower(PRIMARY_SMTP) {
-                tFolder := acc.DeliveryStore.GetDefaultFolder(OL_FOLDER_TASKS)
-                task := tFolder.Items.Add(OL_ITEM_TASK)
-                task.Subject := mailItem.Subject
-                if category
-                    task.Categories := category
-                task.Body := mailItem.Body
-                task.Attachments.Add(mailItem)
+        ; Determine target task folder based on PRIMARY_SMTP setting
+        usePrimaryAccount := (StrLower(Trim(PRIMARY_SMTP)) != "off")
 
-                if OPEN_TASK
-                    task.Display()
-                else
-                    task.Save()
+        if usePrimaryAccount {
+            ; Create task in specified primary email account
+            tFolder := getTaskFolderForPrimaryAccount(ol, PRIMARY_SMTP)
+            if !tFolder {
+                MsgBox("Mailbox for " PRIMARY_SMTP " not found.")
                 return
             }
+        } else {
+            ; Create task in the same account as the email
+            tFolder := mailItem.Parent.Store.GetDefaultFolder(OL_FOLDER_TASKS)
         }
-        MsgBox("Mailbox for " PRIMARY_SMTP " not found.")
+
+        ; Create and configure the task
+        task := tFolder.Items.Add(OL_ITEM_TASK)
+        task.Subject := mailItem.Subject
+        if category
+            task.Categories := category
+        task.Body := mailItem.Body
+        task.Attachments.Add(mailItem)
+
+        if OPEN_TASK
+            task.Display()
+        else
+            task.Save()
+
     } catch as e {
         TrayTip("Task creation failed: " e.Message, "Outlook", 3000)
     }
+}
+
+getTaskFolderForPrimaryAccount(ol, primaryEmail) {
+    try {
+        accounts := ol.Session.Accounts
+        loop accounts.Count {
+            acc := accounts.Item(A_Index)
+            if StrLower(acc.SmtpAddress) == StrLower(primaryEmail) {
+                return acc.DeliveryStore.GetDefaultFolder(OL_FOLDER_TASKS)
+            }
+        }
+    }
+    return 0
 }
 
 applyCategory(mailItem, category) {

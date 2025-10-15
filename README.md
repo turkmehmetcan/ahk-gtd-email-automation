@@ -61,6 +61,7 @@ Works with 25+ browsers including Chrome, Edge, Firefox, Brave, Opera, and more.
      [Settings]
      PrimaryEmail=your.email@domain.com
      ```
+   - Or set `PrimaryEmail=Off` to create tasks in each email's own account instead of a single primary account
 
 4. **Enable Gmail keyboard shortcuts (if using Gmail)**
    - Open Gmail → Settings (gear icon) → See all settings
@@ -116,66 +117,14 @@ The script detects which application is active and applies the appropriate hotke
 | **Alt+U** | *(not applicable)* | Mark as Unread |
 | **Alt+Space** | *(not applicable)* | Refresh Inbox |
 
-## Configuration
-### Automatic Startup (Windows)
+## Quick Setup
 
-You can configure the script to run automatically when Windows starts:
-
-**How to enable/disable:**
-1. Open your `config.ini` file.
-2. Add or edit the following lines:
-    ```ini
-    [Settings]
-    ; RunAtStartup: Set to On to run script at Windows startup, Off to disable
-    RunAtStartup=On
-    ```
-    - Use `On` to enable automatic startup.
-    - Use `Off` to disable automatic startup.
-
-**What happens:**
-- When enabled, a shortcut to `GTD_Automation.ahk` is created in your Startup folder:
-   `C:\Users\<YourUser>\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup`
-- When disabled, the shortcut is removed automatically.
-
-No manual shortcut management is needed—just set the value and run the script.
-
-### Outlook Configuration
-
-Edit `config.ini`:
-```ini
-[Settings]
-PrimaryEmail=your.email@domain.com
-```
-
-**Note:** The `config.ini` file is gitignored to protect your privacy.
-
-### Customizing GTD Labels/Folders
-
-Edit the constants in the library modules:
-
-**For Outlook** (`lib/OutlookGTD.ahk`):
-```ahk
-FOLDER_ACTION := "@ACTION"
-FOLDER_WAITING := "@WAITING FOR"
-FOLDER_REFERENCE := "@REFERENCE"
-```
-
-**For Gmail** (`lib/GmailGTD.ahk`):
-```ahk
-LABEL_GTD_ACTION := "[1] @ACTION"
-LABEL_GTD_WAITING := "[2] @WAITING FOR"
-LABEL_GTD_REFERENCE := "[3] @REFERENCE"
-```
-
-### Customizing Hotkeys
-
-Edit the hotkey definitions in `GTD_Automation.ahk`:
-
-```ahk
-#HotIf IsOutlookActive()
-!a:: OutlookMoveToGtdBucket(FOLDER_ACTION, CATEGORY_ACTION, true, true)
-#HotIf
-```
+1. Copy `config.example.ini` to `config.ini`.
+2. Set your preferred mode:
+   - `PrimaryEmail=Off` — tasks go to each account's own list.
+   - `PrimaryEmail=your.email@domain.com` — all tasks go to one account.
+   - `RunAtStartup=On` or `Off` — run script at startup or not.
+3. Save and run the script.
 
 ## Project Structure
 
