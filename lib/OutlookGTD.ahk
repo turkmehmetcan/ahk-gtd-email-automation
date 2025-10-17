@@ -139,74 +139,91 @@ OutlookCreateGtdElements() {
             [CATEGORY_REFERENCE, COLOR_REFERENCE]
         ]
 
-        madeChange := false
-        TrayTip("Setup", "Starting GTD setup...", 2000)
+        ; Track changes for summary
+        accountsProcessed := 0
+        categoriesCreated := 0
+        categoriesUpdated := 0
+        foldersCreated := 0
+        errors := []
 
         ; Setup categories and folders for each account
-        TrayTip("Setup", "Setting up categories and folders for all accounts...", 2000)
         loop accounts.Count {
             acc := accounts.Item(A_Index)
-            TrayTip("Setup", "Account " A_Index ": " acc.DisplayName, 2000)
             store := acc.DeliveryStore
             if !store {
-                TrayTip("Setup", "No DeliveryStore for account: " acc.DisplayName, 3000)
+                errors.Push("No DeliveryStore for account: " acc.DisplayName)
                 continue
             }
+
             try {
                 root := store.GetRootFolder()
-                TrayTip("Setup", "Root for " acc.DisplayName ": " root.Name " (" root.DefaultItemType ")", 2000)
             } catch as e {
-                TrayTip("Setup", "Failed to get root for " acc.DisplayName ": " e.Message, 3000)
+                errors.Push("Failed to get root for " acc.DisplayName ": " e.Message)
                 continue
             }
+
+            accountsProcessed++
+
             ; Setup categories for this account's store
             for pair in categories {
                 try {
-                    if setupCategoryForStore(store, pair[1], pair[2]) {
-                        TrayTip("Setup", "Created or updated category: " pair[1] " in " acc.DisplayName, 2000)
-                        madeChange := true
-                    } else {
-                        TrayTip("Setup", "Category already exists: " pair[1] " in " acc.DisplayName, 1000)
-                    }
+                    result := setupCategoryForStore(store, pair[1], pair[2])
+                    if result = 1
+                        categoriesCreated++
+                    else if result = 2
+                        categoriesUpdated++
                 } catch as e {
-                    TrayTip("Setup", "Failed to setup category " pair[1] " in " acc.DisplayName ": " e.Message, 3000)
+                    errors.Push("Failed to setup category " pair[1] " in " acc.DisplayName ": " e.Message)
                 }
             }
+
             ; Setup folders for this account
-            if findOrCreateFolder(store, FOLDER_ACTION, true) {
-                TrayTip("Setup", "Created folder: " FOLDER_ACTION " in " acc.DisplayName, 2000)
-                madeChange := true
-            }
-            if findOrCreateFolder(store, FOLDER_WAITING, true) {
-                TrayTip("Setup", "Created folder: " FOLDER_WAITING " in " acc.DisplayName, 2000)
-                madeChange := true
-            }
-            if findOrCreateFolder(store, FOLDER_REFERENCE, true) {
-                TrayTip("Setup", "Created folder: " FOLDER_REFERENCE " in " acc.DisplayName, 2000)
-                madeChange := true
-            }
+            if findOrCreateFolder(store, FOLDER_ACTION, true)
+                foldersCreated++
+            if findOrCreateFolder(store, FOLDER_WAITING, true)
+                foldersCreated++
+            if findOrCreateFolder(store, FOLDER_REFERENCE, true)
+                foldersCreated++
+
             try {
                 store.GetDefaultFolder(OL_FOLDER_ARCHIVE)
             } catch {
-                if findOrCreateFolder(store, "Archive", true) {
-                    TrayTip("Setup", "Created folder: Archive in " acc.DisplayName, 2000)
-                    madeChange := true
-                }
+                if findOrCreateFolder(store, "Archive", true)
+                    foldersCreated++
             }
         }
 
-        if madeChange {
-            MsgBox("GTD setup completed or updated folders/categories!", "Setup", 0x40)
+        ; Build summary message
+        summary := "GTD Setup Complete`n`n"
+        summary .= "Accounts processed: " accountsProcessed "`n"
+        summary .= "Categories created: " categoriesCreated "`n"
+        summary .= "Categories updated: " categoriesUpdated "`n"
+        summary .= "Folders created: " foldersCreated
+
+        if errors.Length > 0 {
+            summary .= "`n`nErrors encountered: " errors.Length
+            if errors.Length <= 3 {
+                summary .= "`n"
+                for err in errors
+                    summary .= "`n- " err
+            }
+        }
+
+        ; Show summary
+        if categoriesCreated > 0 || categoriesUpdated > 0 || foldersCreated > 0 {
+            MsgBox(summary, "GTD Setup", 0x40)
         } else {
-            MsgBox("GTD setup: Everything already exists, no changes made.", "Setup", 0x40)
+            MsgBox("GTD setup: Everything already exists, no changes made.`n`nAccounts processed: " accountsProcessed,
+                "GTD Setup", 0x40)
         }
 
     } catch as e {
-        TrayTip("Setup failed: " e.Message, "Outlook", 3000)
+        MsgBox("Setup failed: " e.Message, "GTD Setup Error", 0x10)
     }
 }
 
 ; Create category in a specific store/account
+; Returns: 0 = already exists, 1 = newly created, 2 = color updated
 setupCategoryForStore(store, categoryName, colorIndex) {
     try {
         categories := store.Application.Session.Categories
@@ -223,16 +240,15 @@ setupCategoryForStore(store, categoryName, colorIndex) {
         if existingCat {
             if existingCat.Color != colorIndex {
                 existingCat.Color := colorIndex
-                return true ; color updated
+                return 2 ; color updated
             }
-            return false ; already exists, no change
+            return 0 ; already exists, no change
         } else {
             categories.Add(categoryName, colorIndex)
-            return true ; new category created
+            return 1 ; new category created
         }
     } catch as e {
-        TrayTip("Failed to setup category '" categoryName "' in store: " e.Message, "Outlook", 3000)
-        return false
+        throw Error("Failed to setup category '" categoryName "': " e.Message)
     }
 }
 
@@ -312,19 +328,14 @@ applyCategory(mailItem, category) {
 findOrCreateFolder(store, name, reportChange := false) {
     folder := findExistingFolder(store, name)
     if folder {
-        if reportChange
-            TrayTip("Setup", "Folder exists: " name, 1000)
         return reportChange ? false : folder
     }
     try {
         root := store.GetRootFolder()
-        TrayTip("Setup", "Attempting to create folder '" name "' under root: " root.Name, 2000)
         newFolder := root.Folders.Add(name)
-        TrayTip("Setup", "Created folder: " name, 2000)
         return reportChange ? true : newFolder
     } catch as e {
-        TrayTip("Failed to create folder '" name "' under root: " root.Name ". Error: " e.Message, "Outlook", 3000)
-        return reportChange ? false : 0
+        throw Error("Failed to create folder '" name "': " e.Message)
     }
 }
 
