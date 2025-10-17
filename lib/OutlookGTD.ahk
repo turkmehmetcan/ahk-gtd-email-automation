@@ -194,35 +194,6 @@ OutlookCreateGtdElements() {
                 }
             }
         }
-        ; Create category in a specific store/account
-        setupCategoryForStore(store, categoryName, colorIndex) {
-            try {
-                categories := store.Application.Session.Categories
-                ; Check if category exists
-                existingCat := 0
-                loop categories.Count {
-                    cat := categories.Item(A_Index)
-                    if StrLower(cat.Name) == StrLower(categoryName) {
-                        existingCat := cat
-                        break
-                    }
-                }
-                ; Create or update category
-                if existingCat {
-                    if existingCat.Color != colorIndex {
-                        existingCat.Color := colorIndex
-                        return true ; color updated
-                    }
-                    return false ; already exists, no change
-                } else {
-                    categories.Add(categoryName, colorIndex)
-                    return true ; new category created
-                }
-            } catch as e {
-                TrayTip("Failed to setup category '" categoryName "' in store: " e.Message, "Outlook", 3000)
-                return false
-            }
-        }
 
         if madeChange {
             MsgBox("GTD setup completed or updated folders/categories!", "Setup", 0x40)
@@ -232,6 +203,36 @@ OutlookCreateGtdElements() {
 
     } catch as e {
         TrayTip("Setup failed: " e.Message, "Outlook", 3000)
+    }
+}
+
+; Create category in a specific store/account
+setupCategoryForStore(store, categoryName, colorIndex) {
+    try {
+        categories := store.Application.Session.Categories
+        ; Check if category exists
+        existingCat := 0
+        loop categories.Count {
+            cat := categories.Item(A_Index)
+            if StrLower(cat.Name) == StrLower(categoryName) {
+                existingCat := cat
+                break
+            }
+        }
+        ; Create or update category
+        if existingCat {
+            if existingCat.Color != colorIndex {
+                existingCat.Color := colorIndex
+                return true ; color updated
+            }
+            return false ; already exists, no change
+        } else {
+            categories.Add(categoryName, colorIndex)
+            return true ; new category created
+        }
+    } catch as e {
+        TrayTip("Failed to setup category '" categoryName "' in store: " e.Message, "Outlook", 3000)
+        return false
     }
 }
 
