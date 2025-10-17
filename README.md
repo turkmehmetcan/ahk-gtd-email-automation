@@ -8,13 +8,16 @@ Automate your GTD (Getting Things Done) email workflow for **Outlook** and **Gma
 ## Features
 
 ### Unified GTD Automation (`GTD_Automation.ahk`)
+
 **New in v2.0:** Single entry point for both platforms with automatic detection
+
 - **One script** for both Outlook and Gmail
 - **Automatic platform detection** - hotkeys work based on active window
 - **Modular architecture** - clean separation of platform logic
 - **Consistent shortcuts** - same Alt+key combinations across platforms
 
 ### Outlook GTD Features (via `lib/OutlookGTD.ahk`)
+
 - **Alt+A**: Move email to `@ACTION` folder + create task
 - **Alt+W**: Move email to `@WAITING FOR` folder + create task
 - **Alt+R**: Move email to `@REFERENCE` folder
@@ -23,6 +26,7 @@ Automate your GTD (Getting Things Done) email workflow for **Outlook** and **Gma
 - **Alt+0**: Create GTD folders, categories, and colors in all accounts
 
 ### Gmail GTD Features (via `lib/GmailGTD.ahk`)
+
 - **Alt+Enter**: Move email to `[0] @GTD ARCHIVE` (mark as read)
 - **Alt+A**: Move email to `[1] @ACTION` label (mark as unread)
 - **Alt+W**: Move email to `[2] @WAITING FOR` label (mark as unread)
@@ -50,6 +54,7 @@ Works with 25+ browsers including Chrome, Edge, Firefox, Brave, Opera, and more.
    - Download from [autohotkey.com](https://www.autohotkey.com/)
 
 2. **Clone or download this repository**
+
    ```bash
    git clone https://github.com/turkmehmetcan/ahk-gtd-email-automation.git
    ```
@@ -57,10 +62,12 @@ Works with 25+ browsers including Chrome, Edge, Firefox, Brave, Opera, and more.
 3. **Configure Outlook (if using)**
    - Copy `config.example.ini` to `config.ini`
    - Edit `config.ini` and set your primary email address:
+
      ```ini
      [Settings]
      PrimaryEmail=your.email@domain.com
      ```
+
    - Or set `PrimaryEmail=Off` to create tasks in each email's own account instead of a single primary account
 
 4. **Enable Gmail keyboard shortcuts (if using Gmail)**
@@ -84,6 +91,7 @@ The script detects which application is active and applies the appropriate hotke
 ### First-Time Setup
 
 **Outlook Users:**
+
 1. Run `GTD_Automation.ahk`
 2. Open Outlook
 3. Press **Alt+0** to automatically create:
@@ -92,6 +100,7 @@ The script detects which application is active and applies the appropriate hotke
    - Works across all your Outlook accounts
 
 **Gmail Users:**
+
 1. Run `GTD_Automation.ahk`
 2. Open Gmail in your browser
 3. Manually create labels (the script will apply them automatically):
@@ -128,7 +137,7 @@ The script detects which application is active and applies the appropriate hotke
 
 ## Project Structure
 
-```
+```text
 ahk-gtd-email-automation/
 ├── GTD_Automation.ahk      # Main entry point (run this)
 ├── lib/
@@ -150,7 +159,8 @@ This project is licensed under the MIT License.
 
 ## Author
 
-**Mehmet Can Türk**
+### Mehmet Can Türk
+
 - GitHub: [@turkmehmetcan](https://github.com/turkmehmetcan)
 
 ## Acknowledgments
@@ -161,5 +171,6 @@ This project is licensed under the MIT License.
 ## Support
 
 If you encounter any issues or have questions:
+
 - Open an [issue](https://github.com/turkmehmetcan/ahk-gtd-email-automation/issues)
 - Check the [AutoHotkey documentation](https://www.autohotkey.com/docs/v2/)
