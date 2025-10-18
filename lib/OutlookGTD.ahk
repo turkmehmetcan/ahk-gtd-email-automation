@@ -11,13 +11,9 @@ Provides GTD workflow functions for Outlook using COM API.
 
 ; ========== CONFIGURATION ==========
 
-; Load email from config file
+; Load email from config file (config.ini is auto-created by main script if missing)
 CONFIG_FILE := A_ScriptDir "\config.ini"
-PRIMARY_SMTP := IniRead(CONFIG_FILE, "Settings", "PrimaryEmail", "")
-if (PRIMARY_SMTP = "") {
-    MsgBox "Please create config.ini with your email setting.`n`nExample:`n[Settings]`nPrimaryEmail=your.email@domain.com`n`nOr set PrimaryEmail=Off to create tasks in each email's own account."
-    ExitApp
-}
+PRIMARY_SMTP := IniRead(CONFIG_FILE, "Settings", "PrimaryEmail", "Off")
 
 OPEN_TASK := true
 

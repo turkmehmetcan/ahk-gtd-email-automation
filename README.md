@@ -59,16 +59,11 @@ Works with 25+ browsers including Chrome, Edge, Firefox, Brave, Opera, and more.
    git clone https://github.com/turkmehmetcan/ahk-gtd-email-automation.git
    ```
 
-3. **Configure Outlook (if using)**
-   - Copy `config.example.ini` to `config.ini`
-   - Edit `config.ini` and set your primary email address:
-
-     ```ini
-     [Settings]
-     PrimaryEmail=your.email@domain.com
-     ```
-
-   - Or set `PrimaryEmail=Off` to create tasks in each email's own account instead of a single primary account
+3. **Configure settings (optional)**
+   - On first run, `config.ini` is automatically created with sensible defaults
+   - Edit `config.ini` if you want to customize behavior:
+     - Set `PrimaryEmail=your.email@domain.com` to centralize all Outlook tasks in one account (default is `Off` - tasks stay in their respective accounts)
+     - Set `RunAtStartup=Off` if you don't want the script to start with Windows (default is `On`)
 
 4. **Enable Gmail keyboard shortcuts (if using Gmail)**
    - Open Gmail → Settings (gear icon) → See all settings
@@ -126,14 +121,16 @@ The script detects which application is active and applies the appropriate hotke
 | **Alt+U** | *(not applicable)* | Mark as Unread |
 | **Alt+Space** | *(not applicable)* | Refresh Inbox |
 
-## Quick Setup
+## Configuration
 
-1. Copy `config.example.ini` to `config.ini`.
-2. Set your preferred mode:
-   - `PrimaryEmail=Off` — tasks go to each account's own list.
-   - `PrimaryEmail=your.email@domain.com` — all tasks go to one account.
-   - `RunAtStartup=On` or `Off` — run script at startup or not.
-3. Save and run the script.
+The `config.ini` file is automatically created on first run with default settings:
+
+- `PrimaryEmail=Off` — (default) tasks go to each email account's own list
+- `PrimaryEmail=your.email@domain.com` — all tasks go to one specified account
+- `RunAtStartup=On` — (default) script runs automatically at Windows startup
+- `RunAtStartup=Off` — manual script execution required
+
+You can edit `config.ini` anytime to change these settings.
 
 ## Project Structure
 
@@ -143,8 +140,7 @@ ahk-gtd-email-automation/
 ├── lib/
 │   ├── GmailGTD.ahk        # Gmail automation module
 │   └── OutlookGTD.ahk      # Outlook automation module
-├── config.ini              # Your Outlook email configuration
-├── config.example.ini      # Configuration template
+├── config.ini              # Auto-generated configuration file
 ├── CHANGELOG.md            # Version history
 └── README.md               # This file
 ```

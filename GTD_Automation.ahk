@@ -39,7 +39,7 @@ Requirements:
 - AutoHotkey v2.0+
 - Gmail: Keyboard shortcuts enabled in Gmail settings
 - Outlook: Desktop application installed
-- config.ini file with PrimaryEmail setting for Outlook
+- config.ini file (auto-generated on first run with default settings)
 
 Author: Mehmet Can Türk
 Version: 2.0
@@ -51,8 +51,32 @@ License: MIT
 #Include lib\GmailGTD.ahk
 #Include lib\OutlookGTD.ahk
 
-; ========== STARTUP SHORTCUT LOGIC ==========
+; ========== CONFIG FILE CREATION ==========
 CONFIG_FILE := A_ScriptDir "\config.ini"
+
+; Create config.ini with default values if it doesn't exist
+if !FileExist(CONFIG_FILE) {
+    defaultConfig := "
+    (
+[Settings]
+; PrimaryEmail=Off --> Create tasks in each email's own Tasks/ToDo list
+; PrimaryEmail=your.email@domain.com --> Create all tasks in a single email's Tasks/ToDo list
+PrimaryEmail=Off
+
+; RunAtStartup=On --> Run script at Windows startup
+; RunAtStartup=Off --> Do not run script at Windows startup
+RunAtStartup=On
+    )"
+
+    try {
+        FileAppend(defaultConfig, CONFIG_FILE)
+    } catch as err {
+        MsgBox "Failed to create config.ini: " err.Message
+        ExitApp
+    }
+}
+
+; ========== STARTUP SHORTCUT LOGIC ==========
 RUN_AT_STARTUP := IniRead(CONFIG_FILE, "Settings", "RunAtStartup", "Off")
 STARTUP_FOLDER := A_AppData "\Microsoft\Windows\Start Menu\Programs\Startup"
 SCRIPT_PATH := A_ScriptFullPath
