@@ -30,6 +30,7 @@ LABEL_GTD_REFERENCE := "[3] @REFERENCE"
 
 ; Email Actions
 KEY_GMAIL_ARCHIVE := "e"            ; Archive current email
+KEY_GMAIL_ARCHIVE_NEXT := "]"       ; Archive and go to next newer conversation (detailed view only)
 KEY_GMAIL_DELETE := "+3"            ; Delete current email (Shift+3)
 KEY_GMAIL_LABEL := "l"              ; Open label menu
 KEY_GMAIL_MOVE := "v"               ; Move to folder/label
@@ -71,6 +72,20 @@ IsGmailActive() {
 
 ; ========== SUPPORT FUNCTIONS ==========
 
+; Checks if we're viewing an email in detailed view (opened email)
+; Returns true if in detailed view, false if in list view
+IsGmailDetailedView() {
+    title := WinGetTitle("A")
+    ; List view titles contain known folder/label names
+    if (InStr(title, "Inbox") || InStr(title, "Sent") || InStr(title, "Drafts") || InStr(title, "Spam") || InStr(title,
+        "Trash"))
+        return false
+    ; GTD label list views contain bucket names
+    if (InStr(title, "@ACTION") || InStr(title, "@WAITING") || InStr(title, "@REFERENCE") || InStr(title, "@GTD"))
+        return false
+    return true
+}
+
 ; Waits for specified duration in milliseconds
 WaitDelay(delayMs := DELAY_LONG) {
     Sleep(delayMs)
@@ -96,14 +111,28 @@ PressEnter(delayMs := DELAY_LONG) {
 
 ; ========== CORE FUNCTIONS ==========
 
-; Main GTD workflow - applies label, archives, and optionally marks unread
+; Main GTD workflow - applies label, archives, and optionally marks unread/read
 MoveToGtdBucket(labelName, markAsUnread := true) {
+    isDetailedView := IsGmailDetailedView()
+
+    ; Apply label
     SendShortcut(KEY_GMAIL_LABEL, DELAY_MEDIUM)
     SendText(labelName, DELAY_LONG)
     PressEnter(DELAY_MEDIUM)
-    MoveToArchive()
+
+    ; Mark as read/unread
     if (markAsUnread)
         MarkUnread()
+    else
+        MarkRead()
+
+    ; Archive: in detailed view go directly to next newer conversation, in list view archive in place
+    if (isDetailedView)
+        SendShortcut(KEY_GMAIL_ARCHIVE_NEXT, DELAY_MEDIUM)
+    else {
+        MoveToArchive()
+        RefreshInbox()
+    }
 }
 
 ; Archives current email
