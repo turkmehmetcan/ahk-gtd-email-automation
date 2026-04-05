@@ -22,10 +22,10 @@ Supported Applications:
 - Outlook (desktop application)
 
 Hotkeys (Common across both platforms):
-Alt+Enter - Move to GTD Archive as read
-Alt+A     - Move to Action folder/label as unread
-Alt+W     - Move to Waiting For folder/label as unread
-Alt+R     - Move to Reference folder/label as unread
+Alt+Enter - Move to GTD Archive
+Alt+A     - Move to Action folder/label
+Alt+W     - Move to Waiting For folder/label
+Alt+R     - Move to Reference folder/label
 Alt+E     - Archive email
 Alt+Z     - Move back to inbox
 Alt+I     - Mark as read (Gmail only)
@@ -96,10 +96,10 @@ if (RUN_AT_STARTUP = "On") {
 #HotIf IsGmailActive()
 
 ; GTD Workflow Hotkeys
-!Enter:: MoveToGtdBucket(LABEL_GTD_ARCHIVE, false) ; Alt+Enter: Move to GTD Archive as read
-!a:: MoveToGtdBucket(LABEL_GTD_ACTION, true)       ; Alt+a: Move to GTD Action as unread
-!w:: MoveToGtdBucket(LABEL_GTD_WAITING, true)      ; Alt+w: Move to GTD Waiting For as unread
-!r:: MoveToGtdBucket(LABEL_GTD_REFERENCE, true)    ; Alt+r: Move to GTD Reference as unread
+!Enter:: MoveToGtdBucket(LABEL_GTD_ARCHIVE) ; Alt+Enter: Move to GTD Archive
+!a:: MoveToGtdBucket(LABEL_GTD_ACTION)       ; Alt+a: Move to GTD Action
+!w:: MoveToGtdBucket(LABEL_GTD_WAITING)      ; Alt+w: Move to GTD Waiting For
+!r:: MoveToGtdBucket(LABEL_GTD_REFERENCE)    ; Alt+r: Move to GTD Reference
 
 ; Email Management
 !e:: MoveToArchive()     ; Alt+E: Archive email

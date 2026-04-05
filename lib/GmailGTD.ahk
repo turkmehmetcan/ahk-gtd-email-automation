@@ -30,7 +30,6 @@ LABEL_GTD_REFERENCE := "[3] @REFERENCE"
 
 ; Email Actions
 KEY_GMAIL_ARCHIVE := "e"            ; Archive current email
-KEY_GMAIL_ARCHIVE_NEXT := "]"       ; Archive and go to next newer conversation (detailed view only)
 KEY_GMAIL_DELETE := "+3"            ; Delete current email (Shift+3)
 KEY_GMAIL_LABEL := "l"              ; Open label menu
 KEY_GMAIL_MOVE := "v"               ; Move to folder/label
@@ -42,6 +41,7 @@ KEY_GMAIL_MARK_UNREAD := "+u"       ; Mark as unread (Shift+U)
 ; Navigation
 KEY_GMAIL_GO_TO_INBOX := "gi"       ; Go to inbox
 KEY_GMAIL_NEWER_CONVERSATION := "k" ; Next conversation
+KEY_GMAIL_OPEN_CONVERSATION := "o"  ; Open selected conversation
 
 ; UI Elements
 KEY_GMAIL_ENTER := "{Enter}"        ; Confirm action
@@ -76,12 +76,11 @@ IsGmailActive() {
 ; Returns true if in detailed view, false if in list view
 IsGmailDetailedView() {
     title := WinGetTitle("A")
-    ; List view titles contain known folder/label names
-    if (InStr(title, "Inbox") || InStr(title, "Sent") || InStr(title, "Drafts") || InStr(title, "Spam") || InStr(title,
-        "Trash"))
+    ; List views start with folder names, while detailed view titles start with email subject.
+    if RegExMatch(title, "i)^\s*(Inbox|Sent|Drafts|Spam|Trash|Starred|Snoozed|Important|All Mail)\b")
         return false
-    ; GTD label list views contain bucket names
-    if (InStr(title, "@ACTION") || InStr(title, "@WAITING") || InStr(title, "@REFERENCE") || InStr(title, "@GTD"))
+    ; GTD bucket list views start with [n] @... labels.
+    if RegExMatch(title, "^\s*\[\d+\]\s+@")
         return false
     return true
 }
@@ -111,27 +110,31 @@ PressEnter(delayMs := DELAY_LONG) {
 
 ; ========== CORE FUNCTIONS ==========
 
-; Main GTD workflow - applies label, archives, and optionally marks unread/read
-MoveToGtdBucket(labelName, markAsUnread := true) {
-    isDetailedView := IsGmailDetailedView()
+; Main GTD workflow - applies label, archives, and keeps current read/unread state
+MoveToGtdBucket(labelName) {
+    startedInDetailedView := IsGmailDetailedView()
 
     ; Apply label
     SendShortcut(KEY_GMAIL_LABEL, DELAY_MEDIUM)
     SendText(labelName, DELAY_LONG)
     PressEnter(DELAY_MEDIUM)
 
-    ; Mark as read/unread
-    if (markAsUnread)
-        MarkUnread()
-    else
-        MarkRead()
-
-    ; Archive: in detailed view go directly to next newer conversation, in list view archive in place
-    if (isDetailedView)
-        SendShortcut(KEY_GMAIL_ARCHIVE_NEXT, DELAY_MEDIUM)
-    else {
+    if (startedInDetailedView) {
+        MoveDetailedViewToNewerEmail()
+    } else {
         MoveToArchive()
         RefreshInbox()
+    }
+}
+
+; Archives from detailed view and keeps navigation in detailed mode.
+MoveDetailedViewToNewerEmail() {
+    MoveToArchive()
+
+    ; If Gmail falls back to list view, move to the newer item and reopen it.
+    if !IsGmailDetailedView() {
+        SendShortcut(KEY_GMAIL_NEWER_CONVERSATION, DELAY_SHORT)
+        SendShortcut(KEY_GMAIL_OPEN_CONVERSATION, DELAY_MEDIUM)
     }
 }
 

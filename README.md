@@ -27,10 +27,10 @@ Automate your GTD (Getting Things Done) email workflow for **Outlook** and **Gma
 
 ### Gmail GTD Features (via `lib/GmailGTD.ahk`)
 
-- **Alt+Enter**: Move email to `[0] @GTD ARCHIVE` (mark as read)
-- **Alt+A**: Move email to `[1] @ACTION` label (mark as unread)
-- **Alt+W**: Move email to `[2] @WAITING FOR` label (mark as unread)
-- **Alt+R**: Move email to `[3] @REFERENCE` label (mark as unread)
+- **Alt+Enter**: Move email to `[0] @GTD ARCHIVE` label/bucket
+- **Alt+A**: Move email to `[1] @ACTION` label/bucket
+- **Alt+W**: Move email to `[2] @WAITING FOR` label/bucket
+- **Alt+R**: Move email to `[3] @REFERENCE` label/bucket
 - **Alt+E**: Archive email
 - **Alt+Z**: Move email back to Inbox
 - **Alt+Delete**: Delete email
@@ -108,13 +108,13 @@ The script detects which application is active and applies the appropriate hotke
 
 | Hotkey | Outlook Action | Gmail Action |
 |--------|----------------|--------------|
-| **Alt+A** | Move to @ACTION + Create Task | Move to [1] @ACTION (unread) |
-| **Alt+W** | Move to @WAITING FOR + Create Task | Move to [2] @WAITING FOR (unread) |
-| **Alt+R** | Move to @REFERENCE | Move to [3] @REFERENCE (unread) |
+| **Alt+A** | Move to @ACTION + Create Task | Move to [1] @ACTION |
+| **Alt+W** | Move to @WAITING FOR + Create Task | Move to [2] @WAITING FOR |
+| **Alt+R** | Move to @REFERENCE | Move to [3] @REFERENCE |
 | **Alt+E** | Archive (mark read) | Archive |
 | **Alt+Z** | Back to Inbox (unread) | Back to Inbox |
 | **Alt+0** | Setup GTD elements | *(not applicable)* |
-| **Alt+Enter** | *(not applicable)* | Move to [0] @GTD ARCHIVE (read) |
+| **Alt+Enter** | *(not applicable)* | Move to [0] @GTD ARCHIVE |
 | **Alt+Delete** | *(not applicable)* | Delete Email |
 | **Alt+End** | *(not applicable)* | Mark as Spam |
 | **Alt+I** | *(not applicable)* | Mark as Read |
