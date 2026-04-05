@@ -44,7 +44,7 @@ Requirements:
 - config.ini file (auto-generated on first run with default settings)
 
 Author: Mehmet Can Türk
-Version: 2.0
+Version: 2.1.0
 License: MIT
 ================================================================================
 */

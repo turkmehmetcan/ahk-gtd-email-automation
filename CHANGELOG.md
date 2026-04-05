@@ -7,15 +7,44 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.1.0] - 2026-04-06
+
+### Added
+
+**Navigation:**
+
+- New `Alt+Up` and `Alt+Down` hotkeys navigate to newer/older emails in both Gmail and Outlook without leaving the current view.
+
+**Gmail:**
+
+- Archiving now detects whether you are in list view or detailed view and uses the correct shortcut for each, preventing accidental returns to the inbox root.
+- Email read/unread state is no longer altered when moving messages to GTD buckets; state is fully preserved.
+
+**Configuration:**
+
+- `config.ini` is auto-generated with defaults on first run; `config.example.ini` has been removed.
+- `PrimaryEmail` setting now accepts `Off` to create tasks in each account's own ToDo list, or an email address to funnel all tasks into one account.
+- New `RunAtStartup` setting controls whether the script registers itself in the Windows Startup folder automatically.
+
+### Fixed
+
+**Outlook:**
+
+- GTD folder and category setup now runs reliably; a scoping bug previously caused setup to silently fail.
+- Setup summary now reports accounts, categories, and folders created along with any errors encountered.
+
+---
+
 ## [2.0.0] - 2025-10-07
 
-### ⚠️ Breaking Changes
+### Breaking Changes
 
 **The standalone `Gmail_GTD.ahk` and `Outlook_GTD.ahk` scripts have been removed.**
 
 You must now use the unified `GTD_Automation.ahk` script for both platforms.
 
 **What you need to do:**
+
 1. Delete old shortcuts to `Gmail_GTD.ahk` and `Outlook_GTD.ahk`
 2. Create a new shortcut to `GTD_Automation.ahk`
 3. Use the same hotkeys—they work identically in both Gmail and Outlook
@@ -38,19 +67,21 @@ You must now use the unified `GTD_Automation.ahk` script for both platforms.
 
 ## [1.0.0] - 2025-10-02
 
-### 🚀 Initial Release
+### Initial Release
 
 Automate your GTD email workflow with keyboard shortcuts for both Outlook and Gmail.
 
 ### What You Get
 
 **Two standalone scripts:**
+
 - `Gmail_GTD.ahk` - For Gmail in any browser
 - `Outlook_GTD.ahk` - For Outlook desktop
 
 ### Core Features
 
 **Keyboard shortcuts for GTD workflow:**
+
 - `Alt+A` - Move to `@Action` (creates Outlook task automatically)
 - `Alt+W` - Move to `@Waiting For` (creates Outlook task automatically)
 - `Alt+R` - Move to `@Reference`
@@ -58,11 +89,13 @@ Automate your GTD email workflow with keyboard shortcuts for both Outlook and Gm
 - `Alt+Z` - Return to Inbox
 
 **Outlook-specific:**
+
 - `Alt+0` - First-time setup (creates folders and color-coded categories)
 - Automatic task creation with email attachments
 - Works with multiple email accounts via `config.ini`
 
 **Gmail-specific:**
+
 - `Alt+Delete` - Delete email
 - `Alt+End` - Mark as spam
 - `Alt+Space` - Refresh inbox
