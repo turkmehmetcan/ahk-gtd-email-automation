@@ -100,6 +100,16 @@ OutlookMoveToArchive() {
     }
 }
 
+; Moves to the next (newer) email in the message list
+OutlookMoveToNewerEmail() {
+    Send("{Up}")
+}
+
+; Moves to the previous (older) email in the message list
+OutlookMoveToOlderEmail() {
+    Send("{Down}")
+}
+
 OutlookMoveToInbox() {
     try {
         ol := ComObjActive("Outlook.Application")

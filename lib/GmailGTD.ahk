@@ -40,7 +40,8 @@ KEY_GMAIL_MARK_UNREAD := "+u"       ; Mark as unread (Shift+U)
 
 ; Navigation
 KEY_GMAIL_GO_TO_INBOX := "gi"       ; Go to inbox
-KEY_GMAIL_NEWER_CONVERSATION := "k" ; Next conversation
+KEY_GMAIL_NEWER_CONVERSATION := "k" ; Next (newer) conversation
+KEY_GMAIL_OLDER_CONVERSATION := "j" ; Previous (older) conversation
 KEY_GMAIL_OPEN_CONVERSATION := "o"  ; Open selected conversation
 
 ; UI Elements
@@ -175,6 +176,16 @@ MarkRead() {
 ; Marks current email as unread
 MarkUnread() {
     SendShortcut(KEY_GMAIL_MARK_UNREAD, DELAY_LONG)
+}
+
+; Moves to the next (newer) conversation without categorizing
+MoveToNewerEmail() {
+    SendShortcut(KEY_GMAIL_NEWER_CONVERSATION, DELAY_SHORT)
+}
+
+; Moves to the previous (older) conversation without categorizing
+MoveToOlderEmail() {
+    SendShortcut(KEY_GMAIL_OLDER_CONVERSATION, DELAY_SHORT)
 }
 
 ; Refreshes Gmail inbox view

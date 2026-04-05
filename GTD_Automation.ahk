@@ -28,6 +28,8 @@ Alt+W     - Move to Waiting For folder/label
 Alt+R     - Move to Reference folder/label
 Alt+E     - Archive email
 Alt+Z     - Move back to inbox
+Alt+Up    - Move to next (newer) email
+Alt+Down  - Move to previous (older) email
 Alt+I     - Mark as read (Gmail only)
 Alt+U     - Mark as unread (Gmail only)
 Alt+Delete- Delete email (Gmail only)
@@ -112,6 +114,8 @@ if (RUN_AT_STARTUP = "On") {
 !u:: MarkUnread()        ; Alt+U: Mark as unread
 
 ; Navigation
+!Up:: MoveToNewerEmail()    ; Alt+Up: Move to next (newer) email
+!Down:: MoveToOlderEmail() ; Alt+Down: Move to previous (older) email
 !Space:: RefreshInbox()  ; Alt+Space: Refresh inbox without reloading page
 
 #HotIf
@@ -123,6 +127,10 @@ if (RUN_AT_STARTUP = "On") {
 !a:: OutlookMoveToGtdBucket(FOLDER_ACTION, CATEGORY_ACTION, true, true)
 !w:: OutlookMoveToGtdBucket(FOLDER_WAITING, CATEGORY_WAITING, true, true)
 !r:: OutlookMoveToGtdBucket(FOLDER_REFERENCE, CATEGORY_REFERENCE, true, false)
+
+; Navigation
+!Up:: OutlookMoveToNewerEmail()    ; Alt+Up: Move to next (newer) email
+!Down:: OutlookMoveToOlderEmail()  ; Alt+Down: Move to previous (older) email
 
 ; Email Management
 !e:: OutlookMoveToArchive()     ; Alt+E: Archive email

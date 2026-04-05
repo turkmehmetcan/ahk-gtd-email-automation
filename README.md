@@ -23,6 +23,8 @@ Automate your GTD (Getting Things Done) email workflow for **Outlook** and **Gma
 - **Alt+R**: Move email to `@REFERENCE` folder
 - **Alt+E**: Archive email (mark as read)
 - **Alt+Z**: Move email back to Inbox (mark as unread)
+- **Alt+Up**: Move to next (newer) email
+- **Alt+Down**: Move to previous (older) email
 - **Alt+0**: Create GTD folders, categories, and colors in all accounts
 
 ### Gmail GTD Features (via `lib/GmailGTD.ahk`)
@@ -35,6 +37,8 @@ Automate your GTD (Getting Things Done) email workflow for **Outlook** and **Gma
 - **Alt+Z**: Move email back to Inbox
 - **Alt+Delete**: Delete email
 - **Alt+End**: Mark as spam
+- **Alt+Up**: Move to next (newer) email
+- **Alt+Down**: Move to previous (older) email
 - **Alt+I**: Mark as read
 - **Alt+U**: Mark as unread
 - **Alt+Space**: Refresh inbox
@@ -113,6 +117,8 @@ The script detects which application is active and applies the appropriate hotke
 | **Alt+R** | Move to @REFERENCE | Move to [3] @REFERENCE |
 | **Alt+E** | Archive (mark read) | Archive |
 | **Alt+Z** | Back to Inbox (unread) | Back to Inbox |
+| **Alt+Up** | Next (newer) email | Next (newer) email |
+| **Alt+Down** | Previous (older) email | Previous (older) email |
 | **Alt+0** | Setup GTD elements | *(not applicable)* |
 | **Alt+Enter** | *(not applicable)* | Move to [0] @GTD ARCHIVE |
 | **Alt+Delete** | *(not applicable)* | Delete Email |
