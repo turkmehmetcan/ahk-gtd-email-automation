@@ -2,4 +2,4 @@
 config.ini
 
 # Temporary files
-tmp/
+.tmp/
