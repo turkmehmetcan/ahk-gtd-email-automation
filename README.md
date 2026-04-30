@@ -168,6 +168,7 @@ This project is licensed under the MIT License.
 ## Acknowledgments
 
 - Inspired by the [GTD (Getting Things Done)](https://gettingthingsdone.com/) methodology by David Allen
+- Gmail inbox section design is taken from [Rob Brautigam](https://www.youtube.com/watch?v=9lq1IOwSNeo) with minor modifications.
 - Built with [AutoHotkey v2.0](https://www.autohotkey.com/)
 
 ## Support
